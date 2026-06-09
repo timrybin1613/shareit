@@ -23,7 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Optional<User> addUser(User user) {
-        user.setId(nextId++);
+        user.setId(getNextId());
         users.put(user.getId(), user);
         return Optional.of(user);
     }

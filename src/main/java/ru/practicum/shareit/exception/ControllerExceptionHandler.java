@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exception;
 
+import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,15 @@ public class ControllerExceptionHandler {
         logger.warn("Validation failed: {}", errors);
 
         return new ErrorResponse(HttpStatus.BAD_REQUEST.value(), errors);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidationException(ValidationException e) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                List.of(e.getMessage())
+        );
     }
 
     @ExceptionHandler(value = {NotFoundException.class})

@@ -10,6 +10,7 @@ public class UserUpdateDto {
     @NotBlank
     private String name;
     @Email
+    @NotBlank
     private String email;
 
 }

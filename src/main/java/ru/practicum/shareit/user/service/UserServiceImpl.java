@@ -35,10 +35,7 @@ public class UserServiceImpl implements UserService {
     public UserDto addUser(UserDto dto) {
         log.debug("addUser, dto={}", dto);
         validateEmailUniqueness(dto.getEmail());
-        User user = User.builder()
-                .name(dto.getName())
-                .email(dto.getEmail())
-                .build();
+        User user = mapper.toUser(dto, null);
         storage.addUser(user);
         return mapper.toUserDto(user);
     }
@@ -56,9 +53,14 @@ public class UserServiceImpl implements UserService {
             user.setName(dto.getName());
         }
 
-        if (dto.getEmail() != null) {
-            validateEmailUniqueness(dto.getEmail());
-            user.setEmail(dto.getEmail());
+        String emailForUpdate = dto.getEmail();
+
+        if (emailForUpdate != null) {
+
+            if (!emailForUpdate.equals(user.getEmail())) {
+                validateEmailUniqueness(emailForUpdate);
+                user.setEmail(emailForUpdate);
+            }
         }
 
         return mapper.toUserDto(
@@ -72,7 +74,6 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long id) {
         log.debug("deleteUser, id={}", id);
         validateId(id);
-
         storage.deleteUser(id);
     }
 
