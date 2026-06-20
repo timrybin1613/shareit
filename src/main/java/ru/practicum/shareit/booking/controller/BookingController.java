@@ -45,7 +45,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    private BookingDto approve(
+    public BookingDto approve(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable Long bookingId,
             @RequestParam boolean approved) {

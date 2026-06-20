@@ -112,4 +112,27 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
               AND b.status = 'APPROVED'
             """)
     LocalDateTime getNextBookingByItemId(Long itemId, LocalDateTime now);
+
+    @Query("""
+            SELECT b.item.id as itemId,
+                   MAX(b.start) as dateBooking
+            FROM Booking b
+            WHERE b.item.id IN :itemIds
+              AND b.start < :now
+              AND b.status = 'APPROVED'
+            GROUP BY b.item.id
+            """)
+    List<ItemBookingDateProjection> getLastBookingByIdIn(List<Long> itemIds, LocalDateTime now);
+
+    @Query("""
+            SELECT b.item.id as itemId,
+                   MIN(b.start) as dateBooking
+            FROM Booking b
+            WHERE b.item.id IN :itemIds
+              AND b.start > :now
+              AND b.status = 'APPROVED'
+            GROUP BY b.item.id
+            """)
+    List<ItemBookingDateProjection> getNextBookingByIdIn(List<Long> itemIds, LocalDateTime now);
+
 }

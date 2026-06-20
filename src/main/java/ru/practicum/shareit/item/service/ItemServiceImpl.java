@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.booking.storage.BookingStorage;
+import ru.practicum.shareit.booking.storage.ItemBookingDateProjection;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.CommentMapper;
@@ -34,6 +36,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserMapper userMapper;
     private final CommentStorage commentStorage;
     private final CommentMapper commentMapper;
+    private final BookingStorage bookingStorage;
     private final BookingService bookingService;
     private final UserService userService;
 
@@ -43,18 +46,42 @@ public class ItemServiceImpl implements ItemService {
         validateUserById(userId);
         List<Item> items = storage.findByOwnerId(userId);
 
-        List<Comment> comments = commentStorage.findByItemIdIn(
-                items.stream().map(Item::getId).collect(Collectors.toList()));
+        Map<Long, List<Comment>> commentByItemId = loadCommentsByItems(items);
 
-        Map<Long, List<Comment>> commentByItemId = comments.stream()
-                .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
+        List<Long> itemIds = items.stream().map(Item::getId).toList();
+        LocalDateTime now = LocalDateTime.now();
+
+        Map<Long, LocalDateTime> lastBookingsByItemIds = loadLastBookingsByItemIds(itemIds, now);
+        Map<Long, LocalDateTime> nextBookingsByItemId = loadNextBookingsByItemIds(itemIds, now);
 
         return items.stream().map(item -> {
             return mapper.toItemDtoWithDetails(item,
-                    null,
-                    null,
+                    lastBookingsByItemIds.getOrDefault(item.getId(), null),
+                    nextBookingsByItemId.getOrDefault(item.getId(), null),
                     commentMapper.toCommentDtos(commentByItemId.getOrDefault(item.getId(), List.of())));
         }).toList();
+    }
+
+    private Map<Long, List<Comment>> loadCommentsByItems(List<Item> items) {
+        List<Comment> comments = commentStorage.findByItemIdIn(
+                items.stream().map(Item::getId).collect(Collectors.toList()));
+
+        return comments.stream()
+                .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
+    }
+
+    private Map<Long, LocalDateTime> loadLastBookingsByItemIds(List<Long> itemIds, LocalDateTime now) {
+        List<ItemBookingDateProjection> lastBookingProjection = bookingStorage.getLastBookingByIdIn(itemIds, now);
+        return lastBookingProjection.stream().collect(Collectors.toMap(
+                ItemBookingDateProjection::getItemId,
+                ItemBookingDateProjection::getDateBooking));
+    }
+
+    private Map<Long, LocalDateTime> loadNextBookingsByItemIds(List<Long> itemIds, LocalDateTime now) {
+        List<ItemBookingDateProjection> nextBookingProjection = bookingStorage.getNextBookingByIdIn(itemIds, now);
+        return nextBookingProjection.stream().collect(Collectors.toMap(
+                ItemBookingDateProjection::getItemId,
+                ItemBookingDateProjection::getDateBooking));
     }
 
     @Override
@@ -68,7 +95,6 @@ public class ItemServiceImpl implements ItemService {
             LocalDateTime now = LocalDateTime.now();
             lastBooking = bookingService.getLastBookingForItem(id, now);
             nextBooking = bookingService.getNextBookingForItem(id, now);
-
         }
         List<CommentDto> comments = commentMapper.toCommentDtos(commentStorage.findByItemId(id));
         return mapper.toItemDtoWithDetails(item, lastBooking, nextBooking, comments);
