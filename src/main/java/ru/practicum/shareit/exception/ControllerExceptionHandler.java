@@ -56,4 +56,12 @@ public class ControllerExceptionHandler {
         return new ErrorResponse(HttpStatus.CONFLICT.value(), errors);
 
     }
+
+    @ExceptionHandler(value = {ForbiddenException.class})
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleForbidden(ForbiddenException ex) {
+        List<String> errors = List.of(ex.getMessage());
+        logger.warn("Forbidden: {}", errors);
+        return new ErrorResponse(HttpStatus.FORBIDDEN.value(), errors);
+    }
 }
