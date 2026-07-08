@@ -13,7 +13,7 @@ public class CommentCreateDto {
     private Long id;
     @NotBlank
     private String text;
-    @NotBlank
+    @NotNull
     private Long itemId;
     @NotNull
     private Long authorId;

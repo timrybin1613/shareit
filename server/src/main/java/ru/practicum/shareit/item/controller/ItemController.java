@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.CommentService;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.util.HeaderConstants;
 
 import java.util.List;
 
@@ -19,14 +20,14 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<List<ItemDtoWithDetails>> findAllForUser(
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         List<ItemDtoWithDetails> items = itemService.findAllForUser(userId);
         return ResponseEntity.ok(items);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ItemDtoWithDetails> getItemBy(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
             @PathVariable Long id) {
         ItemDtoWithDetails itemDto = itemService.findById(id, userId);
         return ResponseEntity.ok().body(itemDto);
@@ -35,7 +36,7 @@ public class ItemController {
     @PostMapping
     public ResponseEntity<ItemDto> createItem(
             @RequestBody ItemCreateDto itemCreateDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         ItemDto createdItem = itemService.create(itemCreateDto, userId);
         return ResponseEntity.ok().body(createdItem);
     }
@@ -44,7 +45,7 @@ public class ItemController {
     public ResponseEntity<ItemDto> updateItem(
             @PathVariable Long id,
             @RequestBody ItemUpdateDto itemUpdateDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         ItemDto updateItem = itemService.update(id, itemUpdateDto, userId);
         return ResponseEntity.ok().body(updateItem);
     }
@@ -60,7 +61,7 @@ public class ItemController {
     public ResponseEntity<CommentDto> addComment(
             @PathVariable Long id,
             @RequestBody CommentCreateDto commentCreateDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         CommentDto commentDto = commentService.addComment(commentCreateDto, id, userId);
         return ResponseEntity.ok().body(commentDto);
     }

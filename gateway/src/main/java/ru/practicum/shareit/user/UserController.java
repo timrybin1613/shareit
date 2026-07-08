@@ -4,12 +4,14 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 
 @RestController
 @AllArgsConstructor
+@Validated
 @RequestMapping(path = "/users")
 public class UserController {
     private final UserClient userClient;
@@ -28,6 +30,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<Object> update(
+            @Valid
             @PathVariable Long id,
             @RequestBody UserUpdateDto dto) {
         return userClient.patchUser(id, dto);

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
+import ru.practicum.shareit.util.HeaderConstants;
 
 @Controller
 @RequestMapping(path = "/bookings")
@@ -20,27 +21,27 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<Object> getBookings(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestParam(defaultValue = "ALL", required = false) String state) {
         return bookingClient.getBookings(userId, state);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getBookingsByOwner(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
             @RequestParam(defaultValue = "ALL", required = false) String state) {
         return bookingClient.getBookingsByOwner(userId, state);
     }
 
     @PostMapping
-    public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> bookItem(@RequestHeader(HeaderConstants.USER_ID) long userId,
                                            @RequestBody @Valid BookingCreateDto requestDto) {
         log.info("Creating booking {}, userId={}", requestDto, userId);
         return bookingClient.bookItem(userId, requestDto);
     }
 
     @GetMapping("/{bookingId}")
-    public ResponseEntity<Object> getBooking(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getBooking(@RequestHeader(HeaderConstants.USER_ID) long userId,
                                              @PathVariable Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
@@ -48,7 +49,7 @@ public class BookingController {
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> approve(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
             @PathVariable Long bookingId,
             @RequestParam boolean approved) {
         return bookingClient.approveBooking(userId, bookingId, approved);

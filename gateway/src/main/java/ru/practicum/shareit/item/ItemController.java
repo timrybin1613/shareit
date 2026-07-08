@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.util.HeaderConstants;
 
 @RestController
 @RequestMapping("/items")
@@ -16,13 +17,13 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<Object> findAllForUser(
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return itemClient.getItems(userId);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getItemBy(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestHeader(HeaderConstants.USER_ID) Long userId,
             @PathVariable Long id) {
         return itemClient.getItem(userId, id);
     }
@@ -31,7 +32,7 @@ public class ItemController {
     public ResponseEntity<Object> createItem(
             @Valid
             @RequestBody ItemCreateDto itemCreateDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return itemClient.createItem(userId, itemCreateDto);
     }
 
@@ -39,7 +40,7 @@ public class ItemController {
     public ResponseEntity<Object> updateItem(
             @PathVariable Long id,
             @RequestBody ItemUpdateDto itemUpdateDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return itemClient.updateItem(id, userId, itemUpdateDto);
     }
 
@@ -51,9 +52,10 @@ public class ItemController {
 
     @PostMapping("/{id}/comment")
     public ResponseEntity<Object> addComment(
+            @Valid
             @PathVariable Long id,
             @RequestBody CommentCreateDto commentCreateDto,
-            @RequestHeader("X-Sharer-User-Id") Long userId) {
+            @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return itemClient.commentItem(id, commentCreateDto, userId);
     }
 }

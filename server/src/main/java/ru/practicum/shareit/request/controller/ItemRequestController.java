@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.service.ItemRequestService;
+import ru.practicum.shareit.util.HeaderConstants;
 
 import java.util.List;
 
@@ -18,19 +19,19 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDto create(@RequestBody ItemRequestCreateDto dto,
-                                 @RequestHeader("X-Sharer-User-Id") Long userId) {
+                                 @RequestHeader(HeaderConstants.USER_ID) Long userId) {
         ItemRequestDto itemRequestDto = itemRequestService.save(dto, userId);
         log.info("ItemRequestId - {} ", itemRequestDto.getId());
         return itemRequestDto;
     }
 
     @GetMapping
-    public List<ItemRequestDto> getByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestDto> getByUserId(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return itemRequestService.getByUserId(userId);
     }
 
     @GetMapping("/all")
-    public List<ItemRequestDto> getAll(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemRequestDto> getAll(@RequestHeader(HeaderConstants.USER_ID) Long userId) {
         return itemRequestService.getAllForUser(userId);
     }
 
